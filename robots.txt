@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yandrebez.github.io/Online-idle-game/sitemap.xml

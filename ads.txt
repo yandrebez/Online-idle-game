@@ -1,0 +1,8 @@
+# ads.txt — authorised digital sellers.
+# AdSense will not serve at full value without this line. Replace the pub ID
+# with your own AdSense publisher ID (the digits after "ca-pub-").
+#
+#   google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+#
+# Adsterra and Monetag give you their own ads.txt lines in your dashboard —
+# paste them below, one per line.

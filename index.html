@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nano Forge — Idle Matter Factory</title>
+<meta name="description" content="Nano Forge is a free idle clicker game. Build nanobot factories, automate production, collapse the universe for permanent bonuses. Plays in your browser, keeps running while you're away.">
+<meta name="theme-color" content="#0b0f16">
+<link rel="canonical" href="https://yandrebez.github.io/Online-idle-game/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nano Forge — Idle Matter Factory">
+<meta property="og:description" content="Free idle game. Build nanobot factories, automate everything, collapse reality for permanent bonuses.">
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip" href="#generators">Skip to generators</a>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2" opacity=".35"/>
+      <circle cx="16" cy="16" r="5" fill="currentColor"/>
+      <circle cx="16" cy="3" r="2.4" fill="currentColor"/>
+      <circle cx="29" cy="16" r="2.4" fill="currentColor"/>
+      <circle cx="16" cy="29" r="2.4" fill="currentColor"/>
+      <circle cx="3" cy="16" r="2.4" fill="currentColor"/>
+    </svg>
+    <span>Nano<b>Forge</b></span>
+  </div>
+
+  <div class="counters">
+    <div class="counter">
+      <span class="counter-value" id="matter">0</span>
+      <span class="counter-label">matter</span>
+    </div>
+    <div class="counter">
+      <span class="counter-value" id="rate">0/s</span>
+      <span class="counter-label">per second</span>
+    </div>
+    <div class="counter shards" id="shard-counter" hidden>
+      <span class="counter-value" id="shards">0</span>
+      <span class="counter-label">shards</span>
+    </div>
+  </div>
+
+  <button class="icon-btn" id="open-menu" aria-label="Settings" aria-haspopup="dialog">⚙</button>
+</header>
+
+<div id="boost-strip" class="boost-strip" hidden>
+  <span id="boost-text">Overdrive active</span>
+</div>
+
+<main class="layout">
+
+  <!-- ------------------------------------------------------------- forge -- -->
+  <section class="panel forge" aria-label="The forge">
+    <button class="core" id="core-btn" aria-label="Forge matter">
+      <span class="core-ring"></span>
+      <span class="core-ring r2"></span>
+      <span class="core-inner">
+        <span class="core-label">FORGE</span>
+        <span class="core-gain" id="core-gain">+1</span>
+      </span>
+    </button>
+
+    <div class="forge-actions">
+      <button class="btn reward" id="boost-btn">
+        <span class="reward-badge">AD</span>
+        <span class="btn-main">Overdrive ×3</span>
+        <span class="btn-sub" id="boost-sub">2 min of triple production</span>
+      </button>
+      <button class="btn" id="daily-btn">
+        <span class="btn-main">Daily bonus</span>
+        <span class="btn-sub" id="daily-sub">Ready to claim</span>
+      </button>
+    </div>
+
+    <p class="hint" id="hint">Click the core to forge matter. Buy a Nano Scrapper to start earning while idle.</p>
+  </section>
+
+  <!-- -------------------------------------------------------- generators -- -->
+  <section class="panel" id="generators" aria-label="Generators">
+    <div class="panel-head">
+      <h2>Generators</h2>
+      <div class="buy-modes" role="group" aria-label="Purchase amount">
+        <button class="chip active" data-buy="1">×1</button>
+        <button class="chip" data-buy="10">×10</button>
+        <button class="chip" data-buy="100">×100</button>
+        <button class="chip" data-buy="max">MAX</button>
+      </div>
+    </div>
+    <ul class="gen-list" id="gen-list"></ul>
+  </section>
+
+  <!-- ------------------------------------------------------------- right -- -->
+  <aside class="side">
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="upgrades" aria-selected="true">Upgrades <span class="dot" id="upg-dot" hidden></span></button>
+      <button class="tab" role="tab" data-tab="prestige" aria-selected="false">Collapse</button>
+      <button class="tab" role="tab" data-tab="awards" aria-selected="false">Awards</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-upgrades" role="tabpanel">
+      <ul class="upg-list" id="upg-list"></ul>
+      <p class="empty" id="upg-empty">No upgrades available yet. Keep clicking and buying.</p>
+    </div>
+
+    <div class="tab-panel" id="tab-prestige" role="tabpanel">
+      <div class="prestige-head">
+        <h3>Collapse the run</h3>
+        <p>Trade this run's progress for <b>Singularity Shards</b>. Shards are permanent: each one is +2% production forever, and they buy the upgrades below.</p>
+        <div class="prestige-stat">
+          <span>Shards on collapse</span>
+          <b id="collapse-gain">0</b>
+        </div>
+        <button class="btn danger" id="collapse-btn">Collapse</button>
+        <button class="btn reward" id="collapse-boost-btn" hidden>
+          <span class="reward-badge">AD</span>
+          <span class="btn-main">Collapse with ×2 shards</span>
+        </button>
+        <p class="hint" id="collapse-hint"></p>
+      </div>
+      <ul class="shard-list" id="shard-list"></ul>
+    </div>
+
+    <div class="tab-panel" id="tab-awards" role="tabpanel">
+      <p class="awards-note">Each award grants <b>+1%</b> to all production.</p>
+      <ul class="ach-list" id="ach-list"></ul>
+    </div>
+
+    <div class="ad-slot rail" id="ad-rail" aria-label="Advertisement"></div>
+  </aside>
+</main>
+
+<!-- ------------------------------------------------------------- footer ad -- -->
+<div class="ad-slot footer" id="ad-footer" aria-label="Advertisement"></div>
+
+<!-- ------------------------------------------------------------- offline -- -->
+<div class="modal" id="offline-modal" hidden>
+  <div class="modal-box">
+    <h2>Welcome back</h2>
+    <p class="modal-sub" id="offline-away"></p>
+    <div class="offline-amount" id="offline-amount">0</div>
+    <p class="modal-note" id="offline-note">Your forge ran at 50% while you were away.</p>
+    <div class="modal-actions">
+      <button class="btn reward wide" id="offline-double">
+        <span class="reward-badge">AD</span>
+        <span class="btn-main">Double it</span>
+      </button>
+      <button class="btn ghost" id="offline-claim">Collect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------ rewarded -- -->
+<div class="modal" id="rewarded-modal" hidden>
+  <div class="modal-box narrow">
+    <h2 class="rw-label">Loading reward…</h2>
+    <div class="rw-bar"><span></span></div>
+    <p class="modal-note">Thanks for supporting the game — ads keep it free.</p>
+    <button class="btn wide rw-skip" disabled>Please wait…</button>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------- settings -- -->
+<div class="modal" id="menu-modal" hidden>
+  <div class="modal-box">
+    <h2>Settings</h2>
+
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="menu-row">
+      <button class="btn ghost" id="export-btn">Export save</button>
+      <button class="btn ghost" id="import-btn">Import save</button>
+    </div>
+    <textarea id="save-box" class="save-box" spellcheck="false" placeholder="Your save code appears here. Paste one in and press Import." hidden></textarea>
+
+    <div class="menu-row">
+      <button class="btn ghost" id="toggle-num">Notation: short</button>
+      <button class="btn danger" id="reset-btn">Wipe save</button>
+    </div>
+
+    <p class="modal-note">
+      <a href="privacy.html">Privacy &amp; cookies</a> ·
+      Progress is stored in this browser only.
+    </p>
+    <button class="btn wide" id="menu-close">Close</button>
+  </div>
+</div>
+
+<!-- -------------------------------------------------------------- consent -- -->
+<div class="consent" id="consent" hidden>
+  <p>
+    We use cookies and show ads to keep Nano Forge free. Ad partners may use your
+    data to personalise ads. <a href="privacy.html">Details</a>.
+  </p>
+  <div class="consent-actions">
+    <button class="btn ghost" data-consent="reject">Reject</button>
+    <button class="btn" data-consent="accept">Accept</button>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="js/ads-config.js"></script>
+<script src="js/format.js"></script>
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ads.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
