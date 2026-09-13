@@ -1,41 +1,27 @@
 name: Deploy to GitHub Pages
 
+# GitHub Pages for this repo serves the `gh-pages` branch, so publishing is
+# simply mirroring the source branch onto it. Every push goes live in ~30s.
 on:
   push:
     branches:
+      - claude/dazzling-johnson-4kc1r0
       - main
       - master
-      - claude/dazzling-johnson-4kc1r0
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Never run two deploys at once; always let the newest win.
 concurrency:
-  group: pages
+  group: pages-publish
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
-      # enablement: true turns GitHub Pages on for this repo automatically,
-      # so there is nothing to click in Settings.
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Mirror this commit to gh-pages
+        run: git push --force origin HEAD:gh-pages
