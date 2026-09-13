@@ -139,6 +139,19 @@ ads.txt             authorised sellers — fill in after AdSense approval
 `game.js` never touches the DOM and `ui.js` never touches the economy, so balance
 changes and interface changes stay out of each other's way.
 
+## Deploying
+
+The site is already live and deploys itself. GitHub Pages serves the `gh-pages`
+branch, and `.github/workflows/deploy.yml` mirrors every push onto it — so any
+change you push to `claude/dazzling-johnson-4kc1r0` is live at
+<https://yandrebez.github.io/Online-idle-game/> about thirty seconds later.
+
+That means enabling ads is: edit `js/ads-config.js`, commit, push. Nothing else.
+
+(The Pages *Actions* source could not be used: switching a repo's Pages source
+needs repo-admin scope, which the Actions token does not have. Mirroring to a
+branch needs only `contents: write` and works without touching repo settings.)
+
 ## Running it locally
 
 No build, no install:
