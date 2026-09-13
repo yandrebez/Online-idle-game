@@ -526,6 +526,9 @@
 
     G.on(function (evt, payload) {
       if (evt === 'achievements') {
+        // Unlocks arrive from clicks, buys and the periodic sweep alike;
+        // redrawing here is the one place that covers every path.
+        refreshAchievements();
         if (payload.length > 2) {
           toast(payload.length + ' awards unlocked — +' + payload.length + '% production', 'gold');
         } else {
@@ -561,8 +564,7 @@
     if (frameCount % 60 === 0) {
       refreshPrestige();
       refreshHint();
-      var got = G.checkAchievements();
-      if (got.length) refreshAchievements();
+      G.checkAchievements();
     }
 
     requestAnimationFrame(loop);
