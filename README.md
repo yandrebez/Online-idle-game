@@ -38,7 +38,17 @@ I built and deployed the game, but I **cannot open ad accounts for you** — eve
 needs your legal identity, address and payout details. That part is yours, and it's about
 20 minutes of form-filling. Everything else is already wired up.
 
-All of it happens in one file: [`js/ads-config.js`](js/ads-config.js).
+**You do not have to edit any code.** Once you have the IDs, go to the repo's
+**Actions** tab → **Configure ads** → **Run workflow**, paste them into the form
+and press Run. It writes the config, updates `ads.txt`, commits and publishes.
+Leave a box empty to skip that network; run it again later to add another
+without clearing the ones already set.
+
+Direct link:
+<https://github.com/yandrebez/Online-idle-game/actions/workflows/configure-ads.yml>
+
+If you would rather edit by hand, everything lives in one file:
+[`js/ads-config.js`](js/ads-config.js).
 
 ### Step 1 — Monetag (5 minutes, instant approval, powers rewarded video)
 
@@ -48,24 +58,16 @@ This is the fastest path to a first dollar and the only one here that pays for
 1. Sign up at <https://monetag.com> → **Add site** → enter
    `yandrebez.github.io/Online-idle-game`.
 2. Create a zone of type **Rewarded Interstitial**. Copy the numeric Zone ID.
-3. Put it in `js/ads-config.js`:
-   ```js
-   monetag: {
-     rewardedZone: '8765432',              // <- your zone id
-     sdkDomain: 'vemtoutcheeg.com',        // <- the domain from your snippet
-     interstitialZone: ''
-   }
-   ```
-4. Commit and push. It's live in ~60 seconds.
+3. Run the **Configure ads** workflow and paste the zone ID into
+   `monetag_zone`, plus the domain from your snippet into `monetag_sdk_domain`.
+4. It's live about a minute later.
 
 ### Step 2 — Adsterra (5 minutes, instant approval, fills the banner)
 
 1. Sign up at <https://adsterra.com> → **Publisher** → add the same site.
 2. Create a **Banner 728×90** unit and copy its key.
-3. Fill in:
-   ```js
-   adsterra: { bannerKey: 'your-key-here', bannerWidth: 728, bannerHeight: 90 }
-   ```
+3. Run **Configure ads** again and paste it into `adsterra_key`. Your Monetag
+   settings are left alone.
 
 ### Step 3 — AdSense (highest payout, needs approval, apply once traffic exists)
 
@@ -75,16 +77,10 @@ the privacy policy, `ads.txt` and content it looks for are already in this repo.
 
 1. Apply at <https://adsense.google.com>.
 2. Once approved, create two **Display** units (one responsive, one 300×250).
-3. Fill in:
-   ```js
-   adsense: {
-     client: 'ca-pub-XXXXXXXXXXXXXXXX',
-     slots: { banner: '1234567890', rectangle: '0987654321' }
-   }
-   ```
-4. Edit `ads.txt` in the repo root and uncomment the `google.com, pub-…` line with your
-   publisher ID. **Skipping this costs you real money** — unverified inventory is bid
-   down hard.
+3. Run **Configure ads** with `adsense_client`, `adsense_banner` and
+   `adsense_rectangle`. The workflow also writes the matching `google.com, pub-…`
+   line into `ads.txt` for you — unverified inventory gets bid down hard, so
+   that line is worth real money.
 
 If both AdSense and Adsterra are configured, AdSense takes the footer banner and
 Adsterra stands down; there is no double-serving.
@@ -101,6 +97,10 @@ roughly in order of return:
   submissions at no cost.
 - **Google** — `sitemap.xml`, `robots.txt`, OG tags and a fast mobile page are already
   in place. Submit the sitemap in Search Console.
+
+**[LAUNCH.md](LAUNCH.md) has the post already written** for each of these —
+Reddit title and body, itch.io listing, portal descriptions and the Search
+Console steps. Read it once, make it sound like you, post it.
 
 ---
 
@@ -133,7 +133,8 @@ js/game.js          economy, save/load, offline progress, prestige — no DOM
 js/ui.js            rendering, input, the main loop
 sw.js               service worker: instant repeat loads, offline play
 ads.txt             authorised sellers — fill in after AdSense approval
-.github/workflows/  auto-deploy to GitHub Pages on every push
+tools/set-ad-config.js  writes your ad IDs into the config (run by the Action)
+.github/workflows/  auto-deploy on push, plus the "Configure ads" form
 ```
 
 `game.js` never touches the DOM and `ui.js` never touches the economy, so balance

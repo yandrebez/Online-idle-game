@@ -1,0 +1,80 @@
+name: Configure ads
+
+# Turns on monetisation without touching any code.
+#
+#   GitHub -> Actions tab -> "Configure ads" -> "Run workflow"
+#   -> paste your IDs into the form -> Run.
+#
+# It writes them into js/ads-config.js (and ads.txt for AdSense), commits, and
+# publishes. Leave any box empty to skip that network; run it again later to
+# add another one without clearing what is already set.
+
+on:
+  workflow_dispatch:
+    inputs:
+      monetag_zone:
+        description: 'Monetag rewarded zone ID (numbers only) — powers rewarded video'
+        required: false
+        default: ''
+      monetag_sdk_domain:
+        description: 'Monetag SDK domain (from your Monetag snippet)'
+        required: false
+        default: 'vemtoutcheeg.com'
+      adsterra_key:
+        description: 'Adsterra banner key (the long hex string)'
+        required: false
+        default: ''
+      adsense_client:
+        description: 'AdSense publisher ID (ca-pub-................)'
+        required: false
+        default: ''
+      adsense_banner:
+        description: 'AdSense slot ID for the responsive footer banner'
+        required: false
+        default: ''
+      adsense_rectangle:
+        description: 'AdSense slot ID for the 300x250 side rail'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-publish
+  cancel-in-progress: false
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write the ad IDs into the config
+        env:
+          MONETAG_ZONE: ${{ inputs.monetag_zone }}
+          MONETAG_SDK_DOMAIN: ${{ inputs.monetag_sdk_domain }}
+          ADSTERRA_KEY: ${{ inputs.adsterra_key }}
+          ADSENSE_CLIENT: ${{ inputs.adsense_client }}
+          ADSENSE_BANNER: ${{ inputs.adsense_banner }}
+          ADSENSE_RECTANGLE: ${{ inputs.adsense_rectangle }}
+        run: node tools/set-ad-config.js
+
+      - name: Check the config still parses
+        run: node --check js/ads-config.js
+
+      - name: Commit and publish
+        run: |
+          if git diff --quiet; then
+            echo "Nothing changed — no IDs were supplied."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/ads-config.js ads.txt
+          git commit -m "Configure ad networks via the Configure ads workflow"
+          git push origin HEAD:${GITHUB_REF_NAME}
+          # A GITHUB_TOKEN push does not trigger other workflows, so publish
+          # to the Pages branch here rather than waiting for deploy.yml.
+          git push --force origin HEAD:gh-pages
+          echo "Ads configured and published. Live in about a minute."
